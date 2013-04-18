@@ -15,7 +15,6 @@ int main(int argc, char** argv){
    struct timeb startT, finishT;
     unsigned int elements=100000000;
     int num,c,valor;
-    int *a = new int[elements];
     startC = clock();
     ftime(&startT);
     srand(time(NULL));
@@ -29,7 +28,6 @@ int main(int argc, char** argv){
     ftime(&finishT);
     seconds = finishT.time - startT.time - 1;
     milliseconds = (1000 - startT.millitm) + finishT.millitm;
-    delete [] a; 
     cout << "Time (clock): "    << (finishC - startC)/CLOCKS_PER_SEC << endl;
     cout << "Numero de unos: " << num_unos<< endl;    
    return 0;

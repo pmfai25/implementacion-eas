@@ -14,27 +14,78 @@
  */
 package org.velonuboso.pruebas_evolutivos;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
+import org.velonuboso.pruebas_evolutivos.impl.BasicOperator;
+import org.velonuboso.pruebas_evolutivos.impl.StringIndividual;
+import org.velonuboso.pruebas_evolutivos.interfaces.Individual;
+import org.velonuboso.pruebas_evolutivos.interfaces.Pair;
 
 /**
  * @author Rubén Héctor García Ortega <raiben@gmail.com>
  */
 public class Sample1 {
 
-    public static int MAX = 1000000;
+    public static int MAX = 100000;
 
     public static void main(String[] args) {
 
-        Sample1 s = new Sample1();
-
-        Random r = new Random();
-
-        System.out.println("Array length = " + MAX);
-
-        int counter = s.countOnesV1(r, MAX);
-        counter = s.countOnesV2(r, MAX);
-
-
+        ArrayList<Class> classes = new ArrayList<Class>();
+        classes.add(StringIndividual.class);
+        
+        for (Class c:classes){
+            Random r = new Random(0);
+        
+            long t0 = 0;
+            
+            t0 = System.currentTimeMillis();
+            StringIndividual i1 = new StringIndividual(MAX, r);
+            long tCreation1 = System.currentTimeMillis()-t0;
+            int count1 = BasicOperator.getInstance().count(i1, true);
+            long tCount1 = System.currentTimeMillis()-tCreation1;
+            
+            t0 = System.currentTimeMillis();
+            StringIndividual i2 = new StringIndividual(MAX, r);
+            long tCreation2 = System.currentTimeMillis()-t0;
+            int count2 = BasicOperator.getInstance().count(i2, true);
+            long tCount2 = System.currentTimeMillis()-tCreation2;
+            
+            t0 = System.currentTimeMillis();
+            Individual i3 = BasicOperator.getInstance().mutate(i1, r);
+            long tMutation = System.currentTimeMillis()-t0;
+            Pair<Individual> p = BasicOperator.getInstance().crossover(i2, i3, r);
+            long tCrossover = System.currentTimeMillis()-tMutation;
+            int count3 = BasicOperator.getInstance().count(p.getElement1(), true);
+            long tCount3 = System.currentTimeMillis()-tCrossover;
+            
+            
+            
+            String ret = new String();
+            ret += "First individual:\n";
+            ret += "creation time: "+tCreation1+" ms\n";
+            ret += "count time: "+tCount1+" ms\n";
+            ret += "number of ones: "+count1+"\n\n";
+            
+            ret += "Second individual:\n";
+            ret += "creation time: "+tCreation2+" ms\n";
+            ret += "count time: "+tCount2+" ms\n";
+            ret += "number of ones: "+count2+"\n\n";
+            
+            ret += "mutation time: "+tMutation+" ms\n";
+            ret += "crossover time: "+tCrossover+" ms\n";
+            ret += "creation time: "+tCreation2+" ms\n";
+            
+            ret += "Last individual:\n";
+            ret += "count time: "+tCount3+" ms\n";
+            ret += "number of ones: "+count3+"\n\n";
+            
+            System.out.println(ret);
+            
+        }
+        
+        
+        
     }
 
     public Sample1() {
@@ -91,13 +142,9 @@ public class Sample1 {
         ret[0] = new String();
         ret[1] = new String();
 
-        int from = r.nextInt(source.length);
-        int to = r.nextInt(source.length);
-        if (from < to) {
-            int aux = from;
-            from = to;
-            to = aux;
-        }
+        int from = r.nextInt(source[0].length()-1);
+        int to = from + r.nextInt(source[0].length()-from);
+        
 
         ret[0] = source[0].substring(0, from);
         ret[1] = source[1].substring(0, from);
@@ -115,20 +162,16 @@ public class Sample1 {
     }
 
     private byte[][] crossoverV2(byte[][] source, Random r) {
+        
         long d1 = System.currentTimeMillis();
 
         byte ret[][] = new byte[source.length][];
         ret[0] = new byte[source[0].length];
         ret[1] = new byte[source[0].length];
 
-        int from = r.nextInt(source.length);
-        int to = r.nextInt(source.length);
-        if (from < to) {
-            int aux = from;
-            from = to;
-            to = aux;
-        }
-
+        int from = r.nextInt(source[0].length-1);
+        int to = from + r.nextInt(source[0].length-from);
+        
         int counter = 0;
 
         while (counter < from) {
@@ -136,12 +179,12 @@ public class Sample1 {
             ret[1][counter] = source[1][counter];
         }
 
-        while (counter < from) {
+        while (counter < to) {
             ret[0][counter] = source[1][counter];
             ret[1][counter] = source[0][counter];
         }
 
-        while (counter < from) {
+        while (counter < source[0].length) {
             ret[0][counter] = source[0][counter];
             ret[1][counter] = source[1][counter];
         }

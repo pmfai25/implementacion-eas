@@ -14,10 +14,12 @@
  */
 package org.velonuboso.pruebas_evolutivos;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import org.velonuboso.pruebas_evolutivos.impl.BasicOperator;
+import org.velonuboso.pruebas_evolutivos.impl.ByteArrayIndividual;
 import org.velonuboso.pruebas_evolutivos.impl.StringIndividual;
 import org.velonuboso.pruebas_evolutivos.interfaces.Individual;
 import org.velonuboso.pruebas_evolutivos.interfaces.Pair;
@@ -29,10 +31,11 @@ public class Sample1 {
 
     public static int MAX = 100000;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
         ArrayList<Class> classes = new ArrayList<Class>();
         classes.add(StringIndividual.class);
+        classes.add(ByteArrayIndividual.class);
         
         for (Class c:classes){
             Random r = new Random(0);
@@ -40,44 +43,42 @@ public class Sample1 {
             long t0 = 0;
             
             t0 = System.currentTimeMillis();
-            StringIndividual i1 = new StringIndividual(MAX, r);
-            long tCreation1 = System.currentTimeMillis()-t0;
+            Individual i1 = (Individual) c.getDeclaredConstructor(int.class,Random.class).newInstance(MAX, r);
+            long tCreation1 = System.currentTimeMillis();
             int count1 = BasicOperator.getInstance().count(i1, true);
-            long tCount1 = System.currentTimeMillis()-tCreation1;
+            long tCount1 = System.currentTimeMillis();
             
-            t0 = System.currentTimeMillis();
             StringIndividual i2 = new StringIndividual(MAX, r);
-            long tCreation2 = System.currentTimeMillis()-t0;
+            long tCreation2 = System.currentTimeMillis();
             int count2 = BasicOperator.getInstance().count(i2, true);
-            long tCount2 = System.currentTimeMillis()-tCreation2;
+            long tCount2 = System.currentTimeMillis();
             
-            t0 = System.currentTimeMillis();
             Individual i3 = BasicOperator.getInstance().mutate(i1, r);
-            long tMutation = System.currentTimeMillis()-t0;
+            long tMutation = System.currentTimeMillis();
             Pair<Individual> p = BasicOperator.getInstance().crossover(i2, i3, r);
-            long tCrossover = System.currentTimeMillis()-tMutation;
+            long tCrossover = System.currentTimeMillis();
             int count3 = BasicOperator.getInstance().count(p.getElement1(), true);
-            long tCount3 = System.currentTimeMillis()-tCrossover;
-            
+            long tCount3 = System.currentTimeMillis();
             
             
             String ret = new String();
+            ret += "Class: "+c.getName()+"\n\n";
+            
             ret += "First individual:\n";
-            ret += "creation time: "+tCreation1+" ms\n";
-            ret += "count time: "+tCount1+" ms\n";
+            ret += "creation time: "+(tCreation1-t0)+" ms\n";
+            ret += "count time: "+(tCount1-tCreation1)+" ms\n";
             ret += "number of ones: "+count1+"\n\n";
             
             ret += "Second individual:\n";
-            ret += "creation time: "+tCreation2+" ms\n";
-            ret += "count time: "+tCount2+" ms\n";
+            ret += "creation time: "+(tCreation2-tCount1)+" ms\n";
+            ret += "count time: "+(tCount2-tCreation2)+" ms\n";
             ret += "number of ones: "+count2+"\n\n";
             
-            ret += "mutation time: "+tMutation+" ms\n";
-            ret += "crossover time: "+tCrossover+" ms\n";
-            ret += "creation time: "+tCreation2+" ms\n";
+            ret += "mutation time: "+(tMutation-tCount2)+" ms\n";
+            ret += "crossover time: "+(tCrossover-tMutation)+" ms\n";
             
             ret += "Last individual:\n";
-            ret += "count time: "+tCount3+" ms\n";
+            ret += "count time: "+(tCount3-tCrossover)+" ms\n";
             ret += "number of ones: "+count3+"\n\n";
             
             System.out.println(ret);

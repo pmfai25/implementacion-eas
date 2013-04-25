@@ -36,4 +36,5 @@ public interface Individual {
     
     public Individual copyClass();
     
+    public Individual copy();
 }

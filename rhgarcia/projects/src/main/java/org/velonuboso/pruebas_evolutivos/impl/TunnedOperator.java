@@ -25,22 +25,23 @@ import org.velonuboso.pruebas_evolutivos.interfaces.Pair;
  * @author Rubén Héctor García Ortega <raiben@gmail.com>
  */
 
-public class BasicOperator implements Operator{
+public class TunnedOperator implements Operator{
 
     private static Operator instance;
 
-    private BasicOperator() {
+    private TunnedOperator() {
     }
 
     public static Operator getInstance() {
         if (instance == null){
-            instance = new BasicOperator();
+            instance = new TunnedOperator();
         }
         return instance;
     }
     
     
-    public Individual mutate(Individual i, Random r) {  
+    public Individual mutate(Individual i, Random r) {
+        
         Individual ret = i.copy();
         int pos = r.nextInt(i.getSize());
         
@@ -79,8 +80,14 @@ public class BasicOperator implements Operator{
 
     public int count(Individual i, boolean ones) {
         int count = 0;
-        for (int it=0; it<i.getSize(); it++){
-            if (i.getValue(it)) count ++; 
+        int s = i.getSize()/8;
+        for (int it=0; it<s; it++){
+            byte b = i.getByte(it);
+            for (int x = 0; x < 8; x++) {
+                if ((b & (1L << x)) != 0) {
+                    count++;
+                }
+            }
         }
         return count;
     }

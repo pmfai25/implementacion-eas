@@ -82,4 +82,9 @@ public class ByteArrayIndividual implements Individual {
     public Individual copyClass() {
         return new ByteArrayIndividual(s);
     }
+
+    public Individual copy() {
+        return new ByteArrayIndividual(s);
+    }
+    
 }

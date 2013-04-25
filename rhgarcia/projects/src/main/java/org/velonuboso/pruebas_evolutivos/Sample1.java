@@ -14,14 +14,21 @@
  */
 package org.velonuboso.pruebas_evolutivos;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
+import org.apache.commons.io.FileUtils;
 import org.velonuboso.pruebas_evolutivos.impl.BasicOperator;
 import org.velonuboso.pruebas_evolutivos.impl.ByteArrayIndividual;
 import org.velonuboso.pruebas_evolutivos.impl.StringIndividual;
+import org.velonuboso.pruebas_evolutivos.impl.TunnedOperator;
 import org.velonuboso.pruebas_evolutivos.interfaces.Individual;
+import org.velonuboso.pruebas_evolutivos.interfaces.Operator;
 import org.velonuboso.pruebas_evolutivos.interfaces.Pair;
 
 /**
@@ -29,64 +36,107 @@ import org.velonuboso.pruebas_evolutivos.interfaces.Pair;
  */
 public class Sample1 {
 
-    public static int MAX = 100000;
+    public static int MAX = 50000;
 
-    public static void main(String[] args) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    public static void main(String[] args) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, IOException {
 
-        ArrayList<Class> classes = new ArrayList<Class>();
-        classes.add(StringIndividual.class);
-        classes.add(ByteArrayIndividual.class);
+        ArrayList<Class> classesIndivisuals = new ArrayList<Class>();
+        classesIndivisuals.add(StringIndividual.class);
+        classesIndivisuals.add(ByteArrayIndividual.class);
         
-        for (Class c:classes){
-            Random r = new Random(0);
+        ArrayList<Class> classesOperators = new ArrayList<Class>();
+        classesOperators.add(BasicOperator.class);
+        classesOperators.add(TunnedOperator.class);
         
-            long t0 = 0;
+        
+        HashMap<String,ArrayList<Long>> results = new HashMap<String, ArrayList<Long>>(); 
+        
+        for (Class o:classesOperators){
+        
+            Operator opInstance = (Operator) o.getMethod("getInstance").invoke(null);
             
-            t0 = System.currentTimeMillis();
-            Individual i1 = (Individual) c.getDeclaredConstructor(int.class,Random.class).newInstance(MAX, r);
-            long tCreation1 = System.currentTimeMillis();
-            int count1 = BasicOperator.getInstance().count(i1, true);
-            long tCount1 = System.currentTimeMillis();
-            
-            StringIndividual i2 = new StringIndividual(MAX, r);
-            long tCreation2 = System.currentTimeMillis();
-            int count2 = BasicOperator.getInstance().count(i2, true);
-            long tCount2 = System.currentTimeMillis();
-            
-            Individual i3 = BasicOperator.getInstance().mutate(i1, r);
-            long tMutation = System.currentTimeMillis();
-            Pair<Individual> p = BasicOperator.getInstance().crossover(i2, i3, r);
-            long tCrossover = System.currentTimeMillis();
-            int count3 = BasicOperator.getInstance().count(p.getElement1(), true);
-            long tCount3 = System.currentTimeMillis();
-            
-            
-            String ret = new String();
-            ret += "Class: "+c.getName()+"\n\n";
-            
-            ret += "First individual:\n";
-            ret += "creation time: "+(tCreation1-t0)+" ms\n";
-            ret += "count time: "+(tCount1-tCreation1)+" ms\n";
-            ret += "number of ones: "+count1+"\n\n";
-            
-            ret += "Second individual:\n";
-            ret += "creation time: "+(tCreation2-tCount1)+" ms\n";
-            ret += "count time: "+(tCount2-tCreation2)+" ms\n";
-            ret += "number of ones: "+count2+"\n\n";
-            
-            ret += "mutation time: "+(tMutation-tCount2)+" ms\n";
-            ret += "crossover time: "+(tCrossover-tMutation)+" ms\n";
-            
-            ret += "Last individual:\n";
-            ret += "count time: "+(tCount3-tCrossover)+" ms\n";
-            ret += "number of ones: "+count3+"\n\n";
-            
-            System.out.println(ret);
-            
+            for (Class c:classesIndivisuals){
+                Random r = new Random(0);
+
+                long t0 = 0;
+
+                t0 = System.currentTimeMillis();
+                Individual i1 = (Individual) c.getDeclaredConstructor(int.class,Random.class).newInstance(MAX, r);
+                long tCreation1 = System.currentTimeMillis();
+                int count1 = opInstance.count(i1, true);
+                long tCount1 = System.currentTimeMillis();
+
+                Individual i2 = (Individual) c.getDeclaredConstructor(int.class,Random.class).newInstance(MAX, r);
+                long tCreation2 = System.currentTimeMillis();
+                int count2 = opInstance.count(i2, true);
+                long tCount2 = System.currentTimeMillis();
+
+                Individual i3 = opInstance.mutate(i1, r);
+                long tMutation = System.currentTimeMillis();
+                Pair<Individual> p = opInstance.crossover(i2, i3, r);
+                long tCrossover = System.currentTimeMillis();
+                int count3 = opInstance.count(p.getElement1(), true);
+                long tCount3 = System.currentTimeMillis();
+
+
+                String ret = new String();
+                ret += "Operator: "+o.getSimpleName()+"\n";
+                ret += "Individual: "+c.getSimpleName()+"\n\n";
+
+                ret += "First individual:\n";
+                ret += "creation time: "+(tCreation1-t0)+" ms\n";
+                ret += "count time: "+(tCount1-tCreation1)+" ms\n";
+                ret += "number of ones: "+count1+"\n\n";
+
+                ret += "Second individual:\n";
+                ret += "creation time: "+(tCreation2-tCount1)+" ms\n";
+                ret += "count time: "+(tCount2-tCreation2)+" ms\n";
+                ret += "number of ones: "+count2+"\n\n";
+
+                ret += "mutation time: "+(tMutation-tCount2)+" ms\n";
+                ret += "crossover time: "+(tCrossover-tMutation)+" ms\n";
+
+                ret += "Last individual:\n";
+                ret += "count time: "+(tCount3-tCrossover)+" ms\n";
+                ret += "number of ones: "+count3+"\n\n";
+
+                System.out.println(ret);
+                
+                ArrayList<Long> values = new ArrayList<Long>();
+                results.put(o.getSimpleName()+"_"+c.getSimpleName(), values);
+                
+                values.add(tCreation1-t0);
+                values.add(tCount1-tCreation1);
+                //values.add((long)count1);
+
+                values.add(tCreation2-tCount1);
+                values.add(tCount2-tCreation2);
+                //values.add((long)count2);
+                values.add(tMutation-tCount2);
+                values.add(tCrossover-tMutation);
+
+                values.add(tCount3-tCrossover);
+                //values.add((long)count3);
+                
+            }
         }
         
+        printToHtml("results.html", results);
+    }
+
+    private static void printToHtml(String name, HashMap<String, ArrayList<Long>> results) throws IOException {
+        String ret = "<table border=\"1\" cellpadding=\"10px\">\n";
+        for (String key: results.keySet()){
+            ret+="<tr>\n<td>"+key+"</td>";
+            
+            for (Long l:results.get(key)){
+                ret+="<td>"+l+"</td>";
+            }
+            ret+="\n</tr>\n";
+        }
+        ret += "</table>";
         
-        
+        FileUtils.write(new File(name), ret);
     }
 
     public Sample1() {

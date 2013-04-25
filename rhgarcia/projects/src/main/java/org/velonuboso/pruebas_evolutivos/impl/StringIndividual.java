@@ -75,7 +75,7 @@ public class StringIndividual implements Individual{
     }
 
     public byte getByte(int position) {
-        return Byte.parseByte(s.substring(position, position+8), 2);
+        return (byte)Integer.parseInt(s.substring(position, position+8), 2);
     }
 
     public boolean getValue(int position) {
@@ -89,6 +89,10 @@ public class StringIndividual implements Individual{
     }
 
     public Individual copyClass() {
+        return new StringIndividual(s);
+    }
+
+    public Individual copy() {
         return new StringIndividual(s);
     }
     

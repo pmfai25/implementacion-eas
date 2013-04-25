@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 import org.apache.commons.io.FileUtils;
 import org.velonuboso.pruebas_evolutivos.impl.BasicOperator;
@@ -36,16 +37,94 @@ import org.velonuboso.pruebas_evolutivos.interfaces.Pair;
  */
 public class Sample1 {
 
-    public static int MAX = 50000;
+    public static int MAX = 1000;
+    public static int POOL_SIZE = 50;
+    public static int ITERATIONS = 100000;
+    
+    
+    public static void main (String[] args) {
+    
+        Random r = new Random(0);
+        ByteArrayIndividual bestIndividual = new ByteArrayIndividual(MAX, r);
+        int bestValue = 0;
+        TunnedOperator op = (TunnedOperator) TunnedOperator.getInstance();
+        
+        // 1st step, first population
+        ArrayList<ByteArrayIndividual> population = new ArrayList ();
+        for (int i=0; i<POOL_SIZE; i++){
+            ByteArrayIndividual ind = new ByteArrayIndividual(MAX, r);
+            population.add(ind);
+        }
+        
+        int iter = 0;
+        while (iter<ITERATIONS || (bestValue == MAX)){
+            
+            System.out.println("Generation "+iter);
+            
+            ArrayList<ByteArrayIndividual> pool = new ArrayList ();
+            for (int i=0; i<POOL_SIZE; i++){
+                int p0 = r.nextInt(POOL_SIZE);
+                int p1 = 0;
+                do{
+                    p1 = r.nextInt(POOL_SIZE);
+                }while (p1 == p0);
 
+                ByteArrayIndividual ind0 = population.get(p0);
+                ByteArrayIndividual ind1 = population.get(p1);
+
+                int n0 = op.count(ind0, true);
+                int n1 = op.count(ind1, true);
+
+                if (n0>n1){
+                    pool.add(ind0);
+                    if (n0>bestValue){
+                        bestValue = n0;
+                        bestIndividual = ind0;
+                        System.out.println("Best value "+bestValue);
+                    }
+                }else{
+                    pool.add(ind1);
+                    if (n1>bestValue){
+                        bestValue = n1;
+                        bestIndividual = ind1;
+                        System.out.println("Best value "+bestValue);
+                    }
+                }
+            }
+
+            population = new ArrayList<>();
+            for (int i=0; i<POOL_SIZE; i+=2){
+                ByteArrayIndividual ind0 = pool.get(i);
+                ByteArrayIndividual ind1 = pool.get(i+1);
+
+                Pair<Individual> a = op.crossover(ind0, ind1, r);
+                ByteArrayIndividual b0 = (ByteArrayIndividual)a.getElement1();
+                ByteArrayIndividual b1 = (ByteArrayIndividual)a.getElement2();
+
+                b0 = (ByteArrayIndividual) op.mutate(b0, r);
+                b1 = (ByteArrayIndividual) op.mutate(b1, r);
+
+                population.add(b0);
+                population.add(b1);
+            }
+            iter++;
+        }
+        System.out.println("END");
+        System.out.println("Best individual "+ bestIndividual.toString());
+        System.out.println("Best value "+bestValue);
+        
+    }
+    
+    
+    /*
     public static void main(String[] args) throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, IOException {
 
         ArrayList<Class> classesIndivisuals = new ArrayList<Class>();
-        classesIndivisuals.add(StringIndividual.class);
+        //classesIndivisuals.add(StringIndividual.class);
         classesIndivisuals.add(ByteArrayIndividual.class);
         
         ArrayList<Class> classesOperators = new ArrayList<Class>();
-        classesOperators.add(BasicOperator.class);
+        //classesOperators.add(BasicOperator.class);
         classesOperators.add(TunnedOperator.class);
         
         
@@ -123,6 +202,7 @@ public class Sample1 {
         
         printToHtml("results.html", results);
     }
+    */
 
     private static void printToHtml(String name, HashMap<String, ArrayList<Long>> results) throws IOException {
         String ret = "<table border=\"1\" cellpadding=\"10px\">\n";

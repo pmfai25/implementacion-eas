@@ -65,9 +65,13 @@ public class ByteArrayIndividual implements Individual {
     }
 
     public boolean getValue(int position) {
-        byte b = s[position / 8];
-        int bitIndex = position % 8;
-        return ((b & (1L << bitIndex)) != 0);
+        try{
+            byte b = s[position / 8];
+            int bitIndex = position % 8;
+            return ((b & (1L << bitIndex)) != 0);
+        }catch(Exception e){
+            throw e;
+        }
     }
 
     public void setValue(boolean b, int position) {

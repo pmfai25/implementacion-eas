@@ -1,1 +1,4 @@
-En la zona de descargas he dejado el proyecto comprimido en zip. He realizado esto porque algunos archivos como por ejemplo los obtenidos en cada generación para ver la evolución de las soluciones son demasiados extensos y no se ve bien su evolución. También al tratarse de un proyecto en C++, es necesaria una jerarquía de carpetas para llevar a cabo el proyecto, y es necesario crear el zip para que todos los archivos estén en su ruta especificada para su posterior compilación y ejecución.
+En la zona de descargas he dejado el proyecto comprimido en zip.
+He realizado esto porque algunos archivos como por ejemplo los ".csv" son demasiados extensos y no se ve bien su evolución.
+También al tratarse de un proyecto en C++, es necesaria una jerarquía de carpetas para llevar a cabo el proyecto,
+y es necesario crear el zip para que todos los archivos estén en su ruta especificada para su posterior compilación y ejecución.

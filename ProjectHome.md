@@ -1,0 +1,1 @@
+Asignatura del [máster en ingeniería de computadores y redes](http://masteres.ugr.es/master-icr/) que describe lo necesario para programar un algoritmo evolutivo. [Página principal histórica de la asignatura](ImplementacionEAsUGR.md)
